@@ -14,20 +14,36 @@ void ThreadsumArray(vector<int> array, int firstIndex, int secondIndex, int &sum
 }
 
 int main() {
-    
+
     int arrSize = 1000;
     int sum = 0;
     vector<int> arr;//сам массив
     arr.resize(arrSize);//задаю размер
 
     for (int i=0; i < arrSize; i++)arr[i] = i + 1;//ячейка массива равна ее номеру(от одного до 1000)
-    
+
     //в общей сумме тут 10 потоков реализованных фором
-    for (int i =0; i<=1000;i+=100){
-        thread thr(ThreadsumArray,arr,i,i+99,ref(sum));
-        thr.detach();
-    }
-    
+    thread thr1(ThreadsumArray,arr,0,99,ref(sum));
+    thread thr2(ThreadsumArray,arr,100,199,ref(sum));
+    thread thr3(ThreadsumArray,arr,200,299,ref(sum));
+    thread thr4(ThreadsumArray,arr,300,399,ref(sum));
+    thread thr5(ThreadsumArray,arr,400,499,ref(sum));
+    thread thr6(ThreadsumArray,arr,500,599,ref(sum));
+    thread thr7(ThreadsumArray,arr,600,699,ref(sum));
+    thread thr8(ThreadsumArray,arr,700,799,ref(sum));
+    thread thr9(ThreadsumArray,arr,800,899,ref(sum));
+    thread thr10(ThreadsumArray,arr,900,999,ref(sum));
+    thr1.detach();
+    thr2.detach();
+    thr3.detach();
+    thr4.detach();
+    thr5.detach();
+    thr6.detach();
+    thr7.detach();
+    thr8.detach();
+    thr9.detach();
+    thr10.detach();
+
     pause_thread(1);//пауза, чтобы return не сработал раньше времени
 
     cout<<sum<<endl;
