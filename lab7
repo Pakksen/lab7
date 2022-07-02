@@ -1,51 +1,59 @@
 #include <iostream>
 #include <thread>
-#include <vector>
 #include <chrono>
-using namespace std;
 
-void pause_thread(int n)
+// Метод для заполнения массива радномными числами.
+void NewElements(int* array, int size)
 {
-    this_thread::sleep_for (chrono::milliseconds(n));
+    for (int i = 0; i < size; i++)
+        array[i] = (rand() % 150 + 1) - 30;
 }
 
-void ThreadsumArray(vector<int> array, int firstIndex, int secondIndex, int &sum){
-    for (int i = firstIndex;i<=secondIndex;i++) sum+=array[i];
+// Метод возращает сумму массива, просто пробегая его.
+int sumArrayLinear(int* array, int size)
+{
+    int result = 0;
+    for (int i = 0; i < size; i++)
+        result += array[i];
+    return result;
 }
 
-int main() {
+// Метод, который суммирует с какого-то индекса 'k' до какого-то индекса 'm'.  
+void sumArrayInParallel(int* array, int indexFirst, int indexSecond, int& sum)
+{
+    for (int i = indexFirst; i <= indexSecond; i++)
+        sum += array[i];
+}
 
-    int arrSize = 1000;
+int main()
+{
+    int size;
+    std::cout << "Enter Array's size: ";
+    std::cin >> size;
+    int* array = new int[size];
+
+    // Объявляем переменную сумма и индексы для метода параллельного суммирования.
     int sum = 0;
-    vector<int> arr;//сам массив
-    arr.resize(arrSize);//задаю размер
+    int indexFirst = 0;
+    int indexSecond = size / 2;
+    int indexThird = indexSecond + 1;
+    int indexFourth = size - 1;
 
-    for (int i=0; i < arrSize; i++)arr[i] = i + 1;//ячейка массива равна ее номеру(от одного до 1000)
+    // Чтобы рандомные значения зависили от времени, без этого рандомные значения будут всегда одинаковыми.
+    srand(time(0));
 
-    //в общей сумме тут 10 потоков реализованных фором
-    thread thr1(ThreadsumArray,arr,0,99,ref(sum));
-    thread thr2(ThreadsumArray,arr,100,199,ref(sum));
-    thread thr3(ThreadsumArray,arr,200,299,ref(sum));
-    thread thr4(ThreadsumArray,arr,300,399,ref(sum));
-    thread thr5(ThreadsumArray,arr,400,499,ref(sum));
-    thread thr6(ThreadsumArray,arr,500,599,ref(sum));
-    thread thr7(ThreadsumArray,arr,600,699,ref(sum));
-    thread thr8(ThreadsumArray,arr,700,799,ref(sum));
-    thread thr9(ThreadsumArray,arr,800,899,ref(sum));
-    thread thr10(ThreadsumArray,arr,900,999,ref(sum));
-    thr1.detach();
-    thr2.detach();
-    thr3.detach();
-    thr4.detach();
-    thr5.detach();
-    thr6.detach();
-    thr7.detach();
-    thr8.detach();
-    thr9.detach();
-    thr10.detach();
+    NewElements(array, size);
 
-    pause_thread(1);//пауза, чтобы return не сработал раньше времени
+    std::thread threadOne(sumArrayInParallel, array, indexFirst, indexSecond, std::ref(sum));
+    std::thread threadSecond(sumArrayInParallel, array, indexThird, indexFourth, std::ref(sum));
 
-    cout<<sum<<endl;
-    return 0;
+
+    threadOne.detach();
+    threadSecond.detach();
+
+    // Чем больше массив, тем больше нужно указать значение тут.  
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << "The result of linear summation: " << sumArrayLinear(array, size) << std::endl;
+    std::cout << "The result of parallel summation: " << sum << std::endl;
 }
